@@ -1,0 +1,21 @@
+doctype html
+html
+	head
+		title Onecheck
+		link(rel="stylesheet" href="css/libs.css")
+		script(src="js/libs.js")
+		script(src="js/scripts.js")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0")
+	body
+		div(data-role="page")#main
+			div(data-role="header")
+				h1 Onecheck
+			div(data-role="content")
+				ul(data-role="listview" )
+					li
+						a(href="#begin") Начало
+		section#begin(data-role="page" )
+			div(data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b")
+				h2 Начало
+			div(data-role="content")
+				ul(data-role="listview")#seasons-list
