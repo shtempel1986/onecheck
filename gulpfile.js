@@ -52,9 +52,9 @@ gulp.task('sass', function () {
 
 
 gulp.task('css-nano',['sass'], function () {
-	return gulp.src('src/css/**/*.css')
+	return gulp.src('src/css/styles.css')
 		.pipe(cssnano())
-		.pipe(rename({suffix:'min'}))
+		.pipe(rename({suffix:'.min'}))
 		.pipe(gulp.dest('src/css'))
 		.pipe(browserSync.reload({stream: true}))
 });
