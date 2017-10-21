@@ -25,5 +25,13 @@
     "gulp-sass": "^3.1.0",
     "imagemin-jpeg-recompress": "^5.1.0",
     "imagemin-pngquant": "^5.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shtempel1986/onecheck.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shtempel1986/onecheck/issues"
+  },
+  "homepage": "https://github.com/shtempel1986/onecheck#readme"
 }

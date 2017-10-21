@@ -1,5 +1,37 @@
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Callendar = function () {
+	function Callendar() {
+		_classCallCheck(this, Callendar);
+
+		this.russianDays = ['Понедльник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+		this.russianMonth = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+		this.year = new Date().getFullYear();
+	}
+
+	_createClass(Callendar, [{
+		key: 'getDay',
+		value: function getDay(day, date, month) {
+			if (!date || !month || !dayNumber) {
+				return console.error('Не хватает данных для построения строки');
+			}
+			// ?(day === 0) day = 6: day -= 1;
+			return this + ' ';
+		}
+	}]);
+
+	return Callendar;
+}();
+
+console.log(new Callendar().getDay());
+
+console.log(new Date('2017/10/22').getDay());
+'use strict';
+
 //================================================================
 //= ДАННЫЕ ИЗ url
 //================================================================
