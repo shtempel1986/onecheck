@@ -13,17 +13,7 @@ function getUrlVars(url) {
 //================================================================
 //= ЛОГИКА КАЛЕНДАРЯ
 //================================================================
-Date.prototype.getWeek = function () {//РАСШИРЕНИЕ ПРОТОТИПА ДАТЫ ДЛЯ ПОЛУЧЕНИЯ НОМЕРА НЕДЕЛИ
-	let target = new Date(this.valueOf());
-	let dayNr = (this.getDay() + 6) % 7;
-	target.setDate(target.getDate() - dayNr + 3);
-	let firstThursday = target.valueOf();
-	target.setMonth(0, 1);
-	if (target.getDay() !== 4) {
-		target.setMonth(0, 1 + ((1 - target.getDay()) + 7) % 7);
-	}
-	return 1 + Math.ceil((firstThursday - target) / 604800000);
-};
+
 
 let getWeekDates = function (year, weeksNumber) {
 	let firstMonday = new Date(year,0,1);
@@ -104,51 +94,54 @@ for (let i = 1; i < 8; i++) {
 	}
 }
 
-let autumnWeeks = [];
-
-for (let i = autumnStart.getWeek(); i < winterStart.getWeek(); i++) {
-	autumnWeeks.push(i);
-}
-
-let summerWeeks = [];
-
-for (let i = summerStart.getWeek(); i < autumnStart.getWeek(); i++) {
-	summerWeeks.push(i);
-}
-
-let springWeeks = [];
-
-for (let i = springStart.getWeek(); i < summerStart.getWeek(); i++) {
-	springWeeks.push(i);
-}
+// let autumnWeeks = [];
+//
+// for (let i = autumnStart.getWeek(); i < winterStart.getWeek(); i++) {
+// 	autumnWeeks.push(i);
+// }
+//
+// let summerWeeks = [];
+//
+// for (let i = summerStart.getWeek(); i < autumnStart.getWeek(); i++) {
+// 	summerWeeks.push(i);
+// }
+//
+// let springWeeks = [];
+//
+// for (let i = springStart.getWeek(); i < summerStart.getWeek(); i++) {
+// 	springWeeks.push(i);
+// }
 
 
 //================================================================
 //= СОЗДАНИЕ ССЫЛОК НА ВРЕМЕНА ГОДА
 //================================================================
 
+const CALLENDAR = new Callendar();
+
 let createSeasonLink = (seasonStart) => {
 	let text = '';
 	let month = seasonStart.getMonth();
 	switch (month) {
 		case 8:
-			text = `Осень ${YEAR}`;
+			text = `Осень ${seasonStart.getFullYear()}`;
 			break;
 		case 11:
-			text = `Зима ${YEAR}`;
+			text = `Зима ${seasonStart.getFullYear()}`;
 			break;
 		case 5:
-			text = `Лето ${YEAR}`;
+			text = `Лето ${seasonStart.getFullYear()}`;
 			break;
 		case 2:
-			text = `Весна ${YEAR}`;
+			text = `Весна ${seasonStart.getFullYear()}`;
 			break;
 	}
-	return $(`<li><a href="#season?season=${month}"></a></li>`).find('a').html(text).end();
+	return $(`<li><a href="#season" data-change-date></a></li>`).find('a')
+		.jqmData('seasonStart', seasonStart).html(text).end();
 };
 
 let createWeeksLink = (week) => {
-	return $('<li>').append(`<a href="#week?week=${week}&year=${YEAR}">${week} неделя</a>`)
+	return $('<li>').append($(`<a href="#week" data-change-date>${week} неделя</a>`).jqmData('week',week));
 };
 
 //================================================================
@@ -156,7 +149,7 @@ let createWeeksLink = (week) => {
 //================================================================
 
 let createDaysLinks = (day,year)=>{
-	return $('<li>').append($(`<a href="#day?day=${day}&year=${year}">${day} </a>`))
+	return $('<li>').append($(`<a href="#day"> ${day} </a>`))
 };
 
 
@@ -166,50 +159,62 @@ let createDaysLinks = (day,year)=>{
 
 $(() => {
 
+	const HTML = $('html');
+
+
+	//================================================================
+//= ИЗМЕНЕНИЕ ДАТЫ СТРАНИЦЫ
+//================================================================
+
+		HTML.on('click','[data-change-date]', function () {
+			HTML.jqmData('seasonStart',$(this).jqmData('seasonStart'));
+			HTML.jqmData('week',$(this).jqmData('week'));
+		});
+
 	//================================================================
 //= ДОБАВЛЕНИЕ В ДОКУМЕНТ ССЫЛОК НА ВРЕМЕНА ГОДА
 //================================================================
 
-
 	$('#seasons-list').on('listviewcreate', function () {
-		$(this).append(createSeasonLink(springStart))
-			.append(createSeasonLink(summerStart))
-			.append(createSeasonLink(autumnStart))
-			.append(createSeasonLink(winterStart)).listview('refresh');
+
+		for(let start of CALLENDAR.seasoneStarts){
+			$(this).append(createSeasonLink(start))
+		}
+
+		$(this).listview('refresh')
+
 	});
 
 	//================================================================
-	//= СОЗДАНИЕ СТРАНИЦЫ ВРЕМЕНА ГОДА
+	//= СОЗДАНИЕ СТРАНИЦЫ ВРЕМЕНИ ГОДА
 	//================================================================
 
 	let weeks = [];
 
-	$('#season').on('pagebeforeshow', function (e) {
+	$('#season').on('pagebeforeshow', function () {
 		let text = '';
-		let month = parseInt(getUrlVars(e.currentTarget.baseURI).season);
+		let month = HTML.jqmData('seasonStart').getMonth();
+		let year = HTML.jqmData('seasonStart').getFullYear();
 
 		switch (month) {
 			case 8: {
-				text = `Осень ${YEAR}`;
-				weeks = autumnWeeks;
+				text = `Осень ${year}`;
 				$(this).jqmData('header-text', text);
 			}
 				break;
 			case 11: {
-				text = `Зима ${YEAR}`;
+				text = `Зима ${year}`;
 				$(this).jqmData('header-text', text);
 			}
 				break;
 			case 5: {
-				text = `Лето ${YEAR}`;
+				text = `Лето ${year}`;
 				$(this).jqmData('header-text', text);
-				weeks = summerWeeks;
 			}
 				break;
 			case 2: {
-				text = `Весна ${YEAR}`;
+				text = `Весна ${year}`;
 				$(this).jqmData('header-text', text);
-				weeks = springWeeks;
 			}
 
 				break;
@@ -217,6 +222,7 @@ $(() => {
 				text = $(this).jqmData('header-text');
 			}
 		}
+		weeks = HTML.jqmData('seasonStart').weeks;
 
 		$(this).find('h2').html(text).parents('.ui-header').toolbar("refresh");
 
@@ -236,16 +242,13 @@ $(() => {
 
 	$('#week').on('pagebeforeshow', function(e){
 
-		let week = parseInt(getUrlVars(e.currentTarget.baseURI).week);
-		let year = parseInt(getUrlVars(e.currentTarget.baseURI).year);
+		let week = HTML.jqmData('week');
 
-		if(!year||!week){
-			year = $(this).jqmData('year');
-			week = $(this).jqmData('week');
+		let year = HTML.jqmData('seasonStart').getFullYear();
+
+		if (week < 10){
+			year++;
 		}
-
-		$(this).jqmData('year', year);
-		$(this).jqmData('week', week);
 
 		$(this).find('h2').html(`${week} неделя`);
 

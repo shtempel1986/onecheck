@@ -4,32 +4,107 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Callendar = function () {
-	function Callendar() {
-		_classCallCheck(this, Callendar);
+var WEEK = 604800000;
 
-		this.russianDays = ['Понедльник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-		this.russianMonth = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-		this.year = new Date().getFullYear();
-	}
-
-	_createClass(Callendar, [{
-		key: 'getDay',
-		value: function getDay(day, date, month) {
-			if (!date || !month || !dayNumber) {
-				return console.error('Не хватает данных для построения строки');
-			}
-			// ?(day === 0) day = 6: day -= 1;
-			return this + ' ';
+Date.prototype.getWeek = function () {
+		//РАСШИРЕНИЕ ПРОТОТИПА ДАТЫ ДЛЯ ПОЛУЧЕНИЯ НОМЕРА НЕДЕЛИ
+		var target = new Date(this.valueOf());
+		var dayNr = (this.getDay() + 6) % 7;
+		target.setDate(target.getDate() - dayNr + 3);
+		var firstThursday = target.valueOf();
+		target.setMonth(0, 1);
+		if (target.getDay() !== 4) {
+				target.setMonth(0, 1 + (1 - target.getDay() + 7) % 7);
 		}
-	}]);
+		return Math.ceil((firstThursday - target) / WEEK);
+};
 
-	return Callendar;
+var Callendar = function () {
+		function Callendar() {
+				_classCallCheck(this, Callendar);
+
+				this.russianDays = ['понедльник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
+
+				this.russianMonth = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+				this._date = new Date();
+
+				this.year = this._date.getFullYear();
+
+				this.seasoneStarts = [];
+
+				for (var i = 0; i < 8; i++) {
+						this._initSeasonStarts(i);
+				}
+
+				for (var _i = 0; _i < this.seasoneStarts.length - 1; _i++) {
+
+						this.seasoneStarts[_i].weeks = [];
+
+						for (var date = new Date(this.seasoneStarts[_i].getTime()); date < this.seasoneStarts[_i + 1]; date.setTime(date.getTime() + WEEK)) {
+								this.seasoneStarts[_i].weeks.push(date.getWeek());
+						}
+				}
+
+				this.seasoneStarts[7].weeks = [];
+
+				this._finish = new Date(this.year + 1, 11, 1);
+
+				while (this._finish.getDay() !== 1) {
+						this._finish.setDate(this._finish.getDate() + 1);
+				}
+
+				for (var _date = new Date(this.seasoneStarts[7].getTime()); _date < this._finish; _date.setTime(_date.getTime() + WEEK)) {
+						this.seasoneStarts[7].weeks.push(_date.getWeek());
+				}
+		}
+
+		_createClass(Callendar, [{
+				key: '_initSeasonStarts',
+				value: function _initSeasonStarts(idx) {
+
+						var year = this.year;
+
+						var month = idx % 4 * 3 || 12;
+
+						if (idx === 0) {
+								year = this.year - 1;
+						}
+
+						if (idx > 4) {
+								year = this.year + 1;
+						}
+
+						for (var i = 1; i < 8; i++) {
+								if (new Date(year + '/' + month + '/' + i).getDay() === 1) {
+										this.seasoneStarts[idx] = new Date(year + '/' + month + '/' + i);
+								}
+						}
+				}
+		}, {
+				key: 'getDay',
+				value: function getDay(dateObject) {
+
+						var date = dateObject.getDate();
+
+						var day = dateObject.getDay();
+
+						var month = dateObject.getMonth();
+
+						if (arguments.length < 1) {
+								return console.error('Не хватает данных для построения строки');
+						}
+						day === 0 ? day = 6 : day -= 1;
+						return date + ' ' + this.russianMonth[month] + ' ' + this.russianDays[day];
+				}
+		}]);
+
+		return Callendar;
 }();
 
-console.log(new Callendar().getDay());
+console.log(new Callendar());
 
-console.log(new Date('2017/10/22').getDay());
+// console.log(new Date('01/01/2017').getDay());
 'use strict';
 
 //================================================================
@@ -47,18 +122,7 @@ function getUrlVars(url) {
 //================================================================
 //= ЛОГИКА КАЛЕНДАРЯ
 //================================================================
-Date.prototype.getWeek = function () {
-	//РАСШИРЕНИЕ ПРОТОТИПА ДАТЫ ДЛЯ ПОЛУЧЕНИЯ НОМЕРА НЕДЕЛИ
-	var target = new Date(this.valueOf());
-	var dayNr = (this.getDay() + 6) % 7;
-	target.setDate(target.getDate() - dayNr + 3);
-	var firstThursday = target.valueOf();
-	target.setMonth(0, 1);
-	if (target.getDay() !== 4) {
-		target.setMonth(0, 1 + (1 - target.getDay() + 7) % 7);
-	}
-	return 1 + Math.ceil((firstThursday - target) / 604800000);
-};
+
 
 var getWeekDates = function getWeekDates(year, weeksNumber) {
 	var firstMonday = new Date(year, 0, 1);
@@ -160,50 +224,53 @@ for (var i = 1; i < 8; i++) {
 	}
 }
 
-var autumnWeeks = [];
+// let autumnWeeks = [];
+//
+// for (let i = autumnStart.getWeek(); i < winterStart.getWeek(); i++) {
+// 	autumnWeeks.push(i);
+// }
+//
+// let summerWeeks = [];
+//
+// for (let i = summerStart.getWeek(); i < autumnStart.getWeek(); i++) {
+// 	summerWeeks.push(i);
+// }
+//
+// let springWeeks = [];
+//
+// for (let i = springStart.getWeek(); i < summerStart.getWeek(); i++) {
+// 	springWeeks.push(i);
+// }
 
-for (var _i = autumnStart.getWeek(); _i < winterStart.getWeek(); _i++) {
-	autumnWeeks.push(_i);
-}
-
-var summerWeeks = [];
-
-for (var _i2 = summerStart.getWeek(); _i2 < autumnStart.getWeek(); _i2++) {
-	summerWeeks.push(_i2);
-}
-
-var springWeeks = [];
-
-for (var _i3 = springStart.getWeek(); _i3 < summerStart.getWeek(); _i3++) {
-	springWeeks.push(_i3);
-}
 
 //================================================================
 //= СОЗДАНИЕ ССЫЛОК НА ВРЕМЕНА ГОДА
 //================================================================
+
+var CALLENDAR = new Callendar();
 
 var createSeasonLink = function createSeasonLink(seasonStart) {
 	var text = '';
 	var month = seasonStart.getMonth();
 	switch (month) {
 		case 8:
-			text = '\u041E\u0441\u0435\u043D\u044C ' + YEAR;
+			text = '\u041E\u0441\u0435\u043D\u044C ' + seasonStart.getFullYear();
 			break;
 		case 11:
-			text = '\u0417\u0438\u043C\u0430 ' + YEAR;
+			text = '\u0417\u0438\u043C\u0430 ' + seasonStart.getFullYear();
 			break;
 		case 5:
-			text = '\u041B\u0435\u0442\u043E ' + YEAR;
+			text = '\u041B\u0435\u0442\u043E ' + seasonStart.getFullYear();
 			break;
 		case 2:
-			text = '\u0412\u0435\u0441\u043D\u0430 ' + YEAR;
+			text = '\u0412\u0435\u0441\u043D\u0430 ' + seasonStart.getFullYear();
 			break;
 	}
-	return $('<li><a href="#season?season=' + month + '"></a></li>').find('a').html(text).end();
+	return $('<li><a href="#season" data-change-date></a></li>').find('a').jqmData('seasonStart', seasonStart).html(text).end();
 };
 
 var createWeeksLink = function createWeeksLink(week) {
-	return $('<li>').append('<a href="#week?week=' + week + '&year=' + YEAR + '">' + week + ' \u043D\u0435\u0434\u0435\u043B\u044F</a>');
+	return $('<li>').append($('<a href="#week" data-change-date>' + week + ' \u043D\u0435\u0434\u0435\u043B\u044F</a>').jqmData('week', week));
 };
 
 //================================================================
@@ -211,7 +278,7 @@ var createWeeksLink = function createWeeksLink(week) {
 //================================================================
 
 var createDaysLinks = function createDaysLinks(day, year) {
-	return $('<li>').append($('<a href="#day?day=' + day + '&year=' + year + '">' + day + ' </a>'));
+	return $('<li>').append($('<a href="#day"> ' + day + ' </a>'));
 };
 
 //================================================================
@@ -220,51 +287,85 @@ var createDaysLinks = function createDaysLinks(day, year) {
 
 $(function () {
 
+	var HTML = $('html');
+
+	//================================================================
+	//= ИЗМЕНЕНИЕ ДАТЫ СТРАНИЦЫ
+	//================================================================
+
+	HTML.on('click', '[data-change-date]', function () {
+		HTML.jqmData('seasonStart', $(this).jqmData('seasonStart'));
+		HTML.jqmData('week', $(this).jqmData('week'));
+	});
+
 	//================================================================
 	//= ДОБАВЛЕНИЕ В ДОКУМЕНТ ССЫЛОК НА ВРЕМЕНА ГОДА
 	//================================================================
 
-
 	$('#seasons-list').on('listviewcreate', function () {
-		$(this).append(createSeasonLink(springStart)).append(createSeasonLink(summerStart)).append(createSeasonLink(autumnStart)).append(createSeasonLink(winterStart)).listview('refresh');
+		var _iteratorNormalCompletion = true;
+		var _didIteratorError = false;
+		var _iteratorError = undefined;
+
+		try {
+
+			for (var _iterator = CALLENDAR.seasoneStarts[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				var start = _step.value;
+
+				$(this).append(createSeasonLink(start));
+			}
+		} catch (err) {
+			_didIteratorError = true;
+			_iteratorError = err;
+		} finally {
+			try {
+				if (!_iteratorNormalCompletion && _iterator.return) {
+					_iterator.return();
+				}
+			} finally {
+				if (_didIteratorError) {
+					throw _iteratorError;
+				}
+			}
+		}
+
+		$(this).listview('refresh');
 	});
 
 	//================================================================
-	//= СОЗДАНИЕ СТРАНИЦЫ ВРЕМЕНА ГОДА
+	//= СОЗДАНИЕ СТРАНИЦЫ ВРЕМЕНИ ГОДА
 	//================================================================
 
 	var weeks = [];
 
-	$('#season').on('pagebeforeshow', function (e) {
+	$('#season').on('pagebeforeshow', function () {
 		var text = '';
-		var month = parseInt(getUrlVars(e.currentTarget.baseURI).season);
+		var month = HTML.jqmData('seasonStart').getMonth();
+		var year = HTML.jqmData('seasonStart').getFullYear();
 
 		switch (month) {
 			case 8:
 				{
-					text = '\u041E\u0441\u0435\u043D\u044C ' + YEAR;
-					weeks = autumnWeeks;
+					text = '\u041E\u0441\u0435\u043D\u044C ' + year;
 					$(this).jqmData('header-text', text);
 				}
 				break;
 			case 11:
 				{
-					text = '\u0417\u0438\u043C\u0430 ' + YEAR;
+					text = '\u0417\u0438\u043C\u0430 ' + year;
 					$(this).jqmData('header-text', text);
 				}
 				break;
 			case 5:
 				{
-					text = '\u041B\u0435\u0442\u043E ' + YEAR;
+					text = '\u041B\u0435\u0442\u043E ' + year;
 					$(this).jqmData('header-text', text);
-					weeks = summerWeeks;
 				}
 				break;
 			case 2:
 				{
-					text = '\u0412\u0435\u0441\u043D\u0430 ' + YEAR;
+					text = '\u0412\u0435\u0441\u043D\u0430 ' + year;
 					$(this).jqmData('header-text', text);
-					weeks = springWeeks;
 				}
 
 				break;
@@ -273,32 +374,33 @@ $(function () {
 					text = $(this).jqmData('header-text');
 				}
 		}
+		weeks = HTML.jqmData('seasonStart').weeks;
 
 		$(this).find('h2').html(text).parents('.ui-header').toolbar("refresh");
 
 		$('#weeks-list').each(function () {
 			$(this).html('');
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
+			var _iteratorNormalCompletion2 = true;
+			var _didIteratorError2 = false;
+			var _iteratorError2 = undefined;
 
 			try {
-				for (var _iterator = weeks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var _i4 = _step.value;
+				for (var _iterator2 = weeks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+					var _i = _step2.value;
 
-					$(this).append(createWeeksLink(_i4));
+					$(this).append(createWeeksLink(_i));
 				}
 			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
+				_didIteratorError2 = true;
+				_iteratorError2 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion && _iterator.return) {
-						_iterator.return();
+					if (!_iteratorNormalCompletion2 && _iterator2.return) {
+						_iterator2.return();
 					}
 				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
+					if (_didIteratorError2) {
+						throw _iteratorError2;
 					}
 				}
 			}
@@ -313,42 +415,39 @@ $(function () {
 
 	$('#week').on('pagebeforeshow', function (e) {
 
-		var week = parseInt(getUrlVars(e.currentTarget.baseURI).week);
-		var year = parseInt(getUrlVars(e.currentTarget.baseURI).year);
+		var week = HTML.jqmData('week');
 
-		if (!year || !week) {
-			year = $(this).jqmData('year');
-			week = $(this).jqmData('week');
+		var year = HTML.jqmData('seasonStart').getFullYear();
+
+		if (week < 10) {
+			year++;
 		}
-
-		$(this).jqmData('year', year);
-		$(this).jqmData('week', week);
 
 		$(this).find('h2').html(week + ' \u043D\u0435\u0434\u0435\u043B\u044F');
 
 		$(this).find('#days-list').html('').each(function () {
 			var days = getWeekDates(year, week);
-			var _iteratorNormalCompletion2 = true;
-			var _didIteratorError2 = false;
-			var _iteratorError2 = undefined;
+			var _iteratorNormalCompletion3 = true;
+			var _didIteratorError3 = false;
+			var _iteratorError3 = undefined;
 
 			try {
-				for (var _iterator2 = days[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var day = _step2.value;
+				for (var _iterator3 = days[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+					var day = _step3.value;
 
 					$(this).append(createDaysLinks(day));
 				}
 			} catch (err) {
-				_didIteratorError2 = true;
-				_iteratorError2 = err;
+				_didIteratorError3 = true;
+				_iteratorError3 = err;
 			} finally {
 				try {
-					if (!_iteratorNormalCompletion2 && _iterator2.return) {
-						_iterator2.return();
+					if (!_iteratorNormalCompletion3 && _iterator3.return) {
+						_iterator3.return();
 					}
 				} finally {
-					if (_didIteratorError2) {
-						throw _iteratorError2;
+					if (_didIteratorError3) {
+						throw _iteratorError3;
 					}
 				}
 			}
