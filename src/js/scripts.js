@@ -2,126 +2,126 @@
 
 (function ($) {
 
-		//СОЗДАНИЕ СПИСКА ДЕЛ
-		$.fn.createInputs = function createInputs() {
+	//СОЗДАНИЕ СПИСКА ДЕЛ
+	$.fn.createInputs = function createInputs() {
 
-				var $list = $('<ol class="onecheck-list"></ol>');
+		var $list = $('<ol class="onecheck-list"></ol>');
 
-				var HTML = $('html');
+		var HTML = $('html');
 
-				var key = JSON.parse(HTML.jqmData('day')).year;
+		var key = JSON.parse(HTML.jqmData('day')).year;
+
+		var data = JSON.parse(localStorage.getItem(key)) || {};
+
+		var tasks = data[JSON.parse(HTML.jqmData('day')).day] || [];
+
+		var _iteratorNormalCompletion = true;
+		var _didIteratorError = false;
+		var _iteratorError = undefined;
+
+		try {
+			for (var _iterator = tasks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				var task = _step.value;
+
+
+				var $el = $('\n  <li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input" ' + (task.done ? 'checked' : '') + '>\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n  </li>');
+				$el.find('textarea').textinput().val(task.text);
+				$el.appendTo($list);
+			}
+		} catch (err) {
+			_didIteratorError = true;
+			_iteratorError = err;
+		} finally {
+			try {
+				if (!_iteratorNormalCompletion && _iterator.return) {
+					_iterator.return();
+				}
+			} finally {
+				if (_didIteratorError) {
+					throw _iteratorError;
+				}
+			}
+		}
+
+		$list.append($('\n  <li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input">\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n  </li>').find('textarea').val('').textinput().end());
+
+		this.find('[data-role="content"]').html('').append($list);
+
+		$list.listview();
+
+		return this;
+	};
+
+	//	ДОБАВЛЕНИЕ ДАННЫХ В LOCALSTORAGE
+
+
+	$.fn.observeChange = function observeChange() {
+
+		var HTML = $('html');
+
+		var key = JSON.parse(HTML.jqmData('day')).year;
+
+		this.find('li').each(function (idx) {
+			var _this = this;
+
+			$(this).find('input, textarea').off('change').on('change', function () {
 
 				var data = JSON.parse(localStorage.getItem(key)) || {};
 
 				var tasks = data[JSON.parse(HTML.jqmData('day')).day] || [];
 
-				var _iteratorNormalCompletion = true;
-				var _didIteratorError = false;
-				var _iteratorError = undefined;
+				var task = {};
 
-				try {
-						for (var _iterator = tasks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-								var task = _step.value;
+				task.done = $(_this).find('[type="checkbox"]').is(':checked');
 
+				task.text = $(_this).find('textarea').val();
 
-								var $el = $('\n  <li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input" ' + (task.done ? 'checked' : '') + '>\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n  </li>');
-								$el.find('textarea').textinput().val(task.text);
-								$el.appendTo($list);
-						}
-				} catch (err) {
-						_didIteratorError = true;
-						_iteratorError = err;
-				} finally {
-						try {
-								if (!_iteratorNormalCompletion && _iterator.return) {
-										_iterator.return();
-								}
-						} finally {
-								if (_didIteratorError) {
-										throw _iteratorError;
-								}
-						}
+				tasks[idx] = task;
+
+				data[JSON.parse(HTML.jqmData('day')).day] = tasks;
+
+				localStorage.setItem(key, JSON.stringify(data));
+			});
+		});
+
+		return this;
+	};
+
+	$(function () {
+
+		var HTML = $('html');
+
+		//ДОБАВЛЕНИЕ НОВОГО ПОЛЯ
+
+		HTML.on('keydown', '[data-onecheck-text]', function (e) {
+
+			if (e.keyCode === 13) {
+
+				e.preventDefault();
+
+				if (!!$(this).val().replace(/ /g, '')) {
+
+					var $nextEl = void 0;
+
+					if (!$(this).parents('li').next().length) {
+
+						$nextEl = $('\n<li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input" >\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n</li>\t\t\t\t\n');
+						$(this).parents('li').after($nextEl);
+
+						$(this).parents('ol').listview('refresh').observeChange();
+
+						$nextEl.find('textarea').val('').focus().textinput();
+					} else {
+
+						$(this).parents('li').next().find('textarea').focus();
+					}
 				}
 
-				$list.append($('\n  <li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input">\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n  </li>').find('textarea').val('').textinput().end());
-
-				this.find('[data-role="content"]').html('').append($list);
-
-				$list.listview();
-
-				return this;
-		};
-
-		//	ДОБАВЛЕНИЕ ДАННЫХ В LOCALSTORAGE
-
-
-		$.fn.observeChange = function observeChange() {
-
-				var HTML = $('html');
-
-				var key = JSON.parse(HTML.jqmData('day')).year;
-
-				this.find('li').each(function (idx) {
-						var _this = this;
-
-						$(this).find('input, textarea').off('change').on('change', function () {
-
-								var data = JSON.parse(localStorage.getItem(key)) || {};
-
-								var tasks = data[JSON.parse(HTML.jqmData('day')).day] || [];
-
-								var task = {};
-
-								task.done = $(_this).find('[type="checkbox"]').is(':checked');
-
-								task.text = $(_this).find('textarea').val();
-
-								tasks[idx] = task;
-
-								data[JSON.parse(HTML.jqmData('day')).day] = tasks;
-
-								localStorage.setItem(key, JSON.stringify(data));
-						});
-				});
-
-				return this;
-		};
-
-		$(function () {
-
-				var HTML = $('html');
-
-				//ДОБАВЛЕНИЕ НОВОГО ПОЛЯ
-
-				HTML.on('keydown', '[data-onecheck-text]', function (e) {
-
-						if (e.keyCode === 13) {
-
-								e.preventDefault();
-
-								if (!!$(this).val().replace(/ /g, '')) {
-
-										var $nextEl = void 0;
-
-										if (!$(this).parents('li').next().length) {
-
-												$nextEl = $('\n<li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input" >\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n</li>\t\t\t\t\n');
-												$(this).parents('li').after($nextEl);
-
-												$(this).parents('ol').listview('refresh').observeChange();
-
-												$nextEl.find('textarea').val('').focus().textinput();
-										} else {
-
-												$(this).parents('li').next().find('textarea').focus();
-										}
-								}
-
-								$(this).change();
-						}
-				});
-				//ДОБАВЛЕНИЕ НОВОГО ПОЛЯ END
+				$(this).change();
+			}
 		});
+		//ДОБАВЛЕНИЕ НОВОГО ПОЛЯ END
+	});
 })(jQuery);
 
 //====================================
@@ -130,12 +130,12 @@
 
 (function ($) {
 
-		$(function () {
+	$(function () {
 
-				$('#day').on('pagebeforeshow', function () {
-						$(this).createInputs().find('ol').observeChange();
-				});
+		$('#day').on('pagebeforeshow', function () {
+			$(this).createInputs().find('ol').observeChange();
 		});
+	});
 })(jQuery);
 'use strict';
 
@@ -146,99 +146,99 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var WEEK = 604800000;
 
 Date.prototype.getWeek = function () {
-		//РАСШИРЕНИЕ ПРОТОТИПА ДАТЫ ДЛЯ ПОЛУЧЕНИЯ НОМЕРА НЕДЕЛИ
-		var target = new Date(this.valueOf());
-		var dayNr = (this.getDay() + 6) % 7;
-		target.setDate(target.getDate() - dayNr + 3);
-		var firstThursday = target.valueOf();
-		target.setMonth(0, 1);
-		if (target.getDay() !== 4) {
-				target.setMonth(0, 1 + (1 - target.getDay() + 7) % 7);
-		}
-		return Math.ceil((firstThursday - target) / WEEK);
+	//РАСШИРЕНИЕ ПРОТОТИПА ДАТЫ ДЛЯ ПОЛУЧЕНИЯ НОМЕРА НЕДЕЛИ
+	var target = new Date(this.valueOf());
+	var dayNr = (this.getDay() + 6) % 7;
+	target.setDate(target.getDate() - dayNr + 3);
+	var firstThursday = target.valueOf();
+	target.setMonth(0, 1);
+	if (target.getDay() !== 4) {
+		target.setMonth(0, 1 + (1 - target.getDay() + 7) % 7);
+	}
+	return Math.ceil((firstThursday - target) / WEEK);
 };
 
 var Callendar = function () {
-		function Callendar() {
-				_classCallCheck(this, Callendar);
+	function Callendar() {
+		_classCallCheck(this, Callendar);
 
-				this.russianDays = ['понедльник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
+		this.russianDays = ['понедльник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
 
-				this.russianMonth = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+		this.russianMonth = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
-				this._date = new Date();
+		this._date = new Date();
 
-				this.year = this._date.getFullYear();
+		this.year = this._date.getFullYear();
 
-				this.seasoneStarts = [];
+		this.seasoneStarts = [];
 
-				for (var i = 0; i < 8; i++) {
-						this._initSeasonStarts(i);
-				}
-
-				for (var _i = 0; _i < this.seasoneStarts.length - 1; _i++) {
-
-						this.seasoneStarts[_i].weeks = [];
-
-						for (var date = new Date(this.seasoneStarts[_i].getTime()); date < this.seasoneStarts[_i + 1]; date.setTime(date.getTime() + WEEK)) {
-								this.seasoneStarts[_i].weeks.push(date.getWeek());
-						}
-				}
-
-				this.seasoneStarts[7].weeks = [];
-
-				this._finish = new Date(this.year + 1, 11, 1);
-
-				while (this._finish.getDay() !== 1) {
-						this._finish.setDate(this._finish.getDate() + 1);
-				}
-
-				for (var _date = new Date(this.seasoneStarts[7].getTime()); _date < this._finish; _date.setTime(_date.getTime() + WEEK)) {
-						this.seasoneStarts[7].weeks.push(_date.getWeek());
-				}
+		for (var i = 0; i < 8; i++) {
+			this._initSeasonStarts(i);
 		}
 
-		_createClass(Callendar, [{
-				key: '_initSeasonStarts',
-				value: function _initSeasonStarts(idx) {
+		for (var _i = 0; _i < this.seasoneStarts.length - 1; _i++) {
 
-						var year = this.year;
+			this.seasoneStarts[_i].weeks = [];
 
-						var month = idx % 4 * 3 || 12;
+			for (var date = new Date(this.seasoneStarts[_i].getTime()); date < this.seasoneStarts[_i + 1]; date.setTime(date.getTime() + WEEK)) {
+				this.seasoneStarts[_i].weeks.push(date.getWeek());
+			}
+		}
 
-						if (idx === 0) {
-								year = this.year - 1;
-						}
+		this.seasoneStarts[7].weeks = [];
 
-						if (idx > 4) {
-								year = this.year + 1;
-						}
+		this._finish = new Date(this.year + 1, 11, 1);
 
-						for (var i = 1; i < 8; i++) {
-								if (new Date(year + '/' + month + '/' + i).getDay() === 1) {
-										this.seasoneStarts[idx] = new Date(year + '/' + month + '/' + i);
-								}
-						}
+		while (this._finish.getDay() !== 1) {
+			this._finish.setDate(this._finish.getDate() + 1);
+		}
+
+		for (var _date = new Date(this.seasoneStarts[7].getTime()); _date < this._finish; _date.setTime(_date.getTime() + WEEK)) {
+			this.seasoneStarts[7].weeks.push(_date.getWeek());
+		}
+	}
+
+	_createClass(Callendar, [{
+		key: '_initSeasonStarts',
+		value: function _initSeasonStarts(idx) {
+
+			var year = this.year;
+
+			var month = idx % 4 * 3 || 12;
+
+			if (idx === 0) {
+				year = this.year - 1;
+			}
+
+			if (idx > 4) {
+				year = this.year + 1;
+			}
+
+			for (var i = 1; i < 8; i++) {
+				if (new Date(year + '/' + month + '/' + i).getDay() === 1) {
+					this.seasoneStarts[idx] = new Date(year + '/' + month + '/' + i);
 				}
-		}, {
-				key: 'getDay',
-				value: function getDay(dateObject) {
+			}
+		}
+	}, {
+		key: 'getDay',
+		value: function getDay(dateObject) {
 
-						var date = dateObject.getDate();
+			var date = dateObject.getDate();
 
-						var day = dateObject.getDay();
+			var day = dateObject.getDay();
 
-						var month = dateObject.getMonth();
+			var month = dateObject.getMonth();
 
-						if (arguments.length < 1) {
-								return console.error('Не хватает данных для построения строки');
-						}
-						day === 0 ? day = 6 : day -= 1;
-						return date + ' ' + this.russianMonth[month] + ' ' + this.russianDays[day];
-				}
-		}]);
+			if (arguments.length < 1) {
+				return console.error('Не хватает данных для построения строки');
+			}
+			day === 0 ? day = 6 : day -= 1;
+			return date + ' ' + this.russianMonth[month] + ' ' + this.russianDays[day];
+		}
+	}]);
 
-		return Callendar;
+	return Callendar;
 }();
 'use strict';
 
