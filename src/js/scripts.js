@@ -1,5 +1,144 @@
 'use strict';
 
+(function ($) {
+
+		//СОЗДАНИЕ СПИСКА ДЕЛ
+		$.fn.createInputs = function createInputs() {
+
+				var $list = $('<ol class="onecheck-list"></ol>');
+
+				var HTML = $('html');
+
+				var key = JSON.parse(HTML.jqmData('day')).year;
+
+				var data = JSON.parse(localStorage.getItem(key)) || {};
+
+				var tasks = data[JSON.parse(HTML.jqmData('day')).day] || [];
+
+				var _iteratorNormalCompletion = true;
+				var _didIteratorError = false;
+				var _iteratorError = undefined;
+
+				try {
+						for (var _iterator = tasks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+								var task = _step.value;
+
+
+								var $el = $('\n  <li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input" ' + (task.done ? 'checked' : '') + '>\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n  </li>');
+								$el.find('textarea').textinput().val(task.text);
+								$el.appendTo($list);
+						}
+				} catch (err) {
+						_didIteratorError = true;
+						_iteratorError = err;
+				} finally {
+						try {
+								if (!_iteratorNormalCompletion && _iterator.return) {
+										_iterator.return();
+								}
+						} finally {
+								if (_didIteratorError) {
+										throw _iteratorError;
+								}
+						}
+				}
+
+				$list.append($('\n  <li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input">\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n  </li>').find('textarea').val('').textinput().end());
+
+				this.find('[data-role="content"]').html('').append($list);
+
+				$list.listview();
+
+				return this;
+		};
+
+		//	ДОБАВЛЕНИЕ ДАННЫХ В LOCALSTORAGE
+
+
+		$.fn.observeChange = function observeChange() {
+
+				var HTML = $('html');
+
+				var key = JSON.parse(HTML.jqmData('day')).year;
+
+				this.find('li').each(function (idx) {
+						var _this = this;
+
+						$(this).find('input, textarea').off('change').on('change', function () {
+
+								var data = JSON.parse(localStorage.getItem(key)) || {};
+
+								var tasks = data[JSON.parse(HTML.jqmData('day')).day] || [];
+
+								var task = {};
+
+								task.done = $(_this).find('[type="checkbox"]').is(':checked');
+
+								task.text = $(_this).find('textarea').val();
+
+								tasks[idx] = task;
+
+								data[JSON.parse(HTML.jqmData('day')).day] = tasks;
+
+								localStorage.setItem(key, JSON.stringify(data));
+						});
+				});
+
+				return this;
+		};
+
+		$(function () {
+
+				var HTML = $('html');
+
+				//ДОБАВЛЕНИЕ НОВОГО ПОЛЯ
+
+				HTML.on('keydown', '[data-onecheck-text]', function (e) {
+
+						if (e.keyCode === 13) {
+
+								e.preventDefault();
+
+								if (!!$(this).val().replace(/ /g, '')) {
+
+										var $nextEl = void 0;
+
+										if (!$(this).parents('li').next().length) {
+
+												$nextEl = $('\n<li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input" >\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n</li>\t\t\t\t\n');
+												$(this).parents('li').after($nextEl);
+
+												$(this).parents('ol').listview('refresh').observeChange();
+
+												$nextEl.find('textarea').val('').focus().textinput();
+										} else {
+
+												$(this).parents('li').next().find('textarea').focus();
+										}
+								}
+
+								$(this).change();
+						}
+				});
+				//ДОБАВЛЕНИЕ НОВОГО ПОЛЯ END
+		});
+})(jQuery);
+
+//====================================
+// ПРОВЕРКА РАСШИРЕНИЯ ОБЪЕКТА $
+//====================================
+
+(function ($) {
+
+		$(function () {
+
+				$('#day').on('pagebeforeshow', function () {
+						$(this).createInputs().find('ol').observeChange();
+				});
+		});
+})(jQuery);
+'use strict';
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -101,10 +240,6 @@ var Callendar = function () {
 
 		return Callendar;
 }();
-
-console.log(new Callendar());
-
-// console.log(new Date('01/01/2017').getDay());
 'use strict';
 
 //================================================================
@@ -304,7 +439,6 @@ $(function () {
 		HTML.jqmData('seasonStart', $(this).jqmData('seasonStart'));
 		HTML.jqmData('week', $(this).jqmData('week'));
 		HTML.jqmData('day', $(this).jqmData('day'));
-		console.log(HTML.jqmData('day'));
 	});
 
 	//================================================================
@@ -467,7 +601,7 @@ $(function () {
 	//= СОЗДАНИЕ СТРАНИЦЫ  ДНЯ
 	//================================================================
 	$('#day').on('pagebeforeshow', function (e) {
-		var header = getUrlVars(e.currentTarget.baseURI).day;
+		var header = JSON.parse(HTML.jqmData('day'))['day'];
 
 		$(this).find('h2').html(header);
 	});

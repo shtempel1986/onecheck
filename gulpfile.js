@@ -79,7 +79,7 @@ gulp.task('browser-sync', function () {
 //===========================================================
 
 gulp.task("babel", function () {
-	return gulp.src(['src/js/callendar.ES6.js',"src/js/scripts.ES6.js",])
+	return gulp.src(['src/js/input-tasks.ES6.js','src/js/callendar.ES6.js',"src/js/scripts.ES6.js",])
 		.pipe(babel())
 		.pipe(concat("scripts.js"))
 		.pipe(gulp.dest("src/js"))
@@ -92,7 +92,7 @@ gulp.task("babel", function () {
 
 gulp.task('watch', ['browser-sync', 'babel', 'libs', 'css-nano','pug'], function () {
 	gulp.watch('src/sass/**/*.sass', ['css-nano',browserSync.reload]);
-	gulp.watch(["src/js/scripts.ES6.js",'src/js/callendar.ES6.js'], ['babel',browserSync.reload]);
+	gulp.watch(["src/js/*.js"], ['babel',browserSync.reload]);
 	gulp.watch('src/pug/**/*.pug', ['pug',browserSync.reload]);
 });
 

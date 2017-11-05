@@ -177,7 +177,6 @@ $(() => {
 			HTML.jqmData('seasonStart',$(this).jqmData('seasonStart'));
 			HTML.jqmData('week',$(this).jqmData('week'));
 			HTML.jqmData('day',$(this).jqmData('day'));
-			console.log(HTML.jqmData('day'));
 		});
 
 	//================================================================
@@ -273,7 +272,7 @@ $(() => {
 	//= СОЗДАНИЕ СТРАНИЦЫ  ДНЯ
 	//================================================================
 	$('#day').on('pagebeforeshow', function(e){
-		let header = getUrlVars(e.currentTarget.baseURI).day;
+		let header = JSON.parse(HTML.jqmData('day'))['day'];
 
 		$(this).find('h2').html(header);
 	});

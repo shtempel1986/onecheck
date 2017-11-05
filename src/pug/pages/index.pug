@@ -3,6 +3,7 @@ html
 	head
 		title Onecheck
 		link(rel="stylesheet" href="css/libs.css")
+		link(rel="stylesheet" href="css/styles.min.css")
 		script(src="js/libs.js")
 		script(src="js/scripts.js")
 		meta(name="viewport" content="width=device-width, initial-scale=1.0")
@@ -16,19 +17,24 @@ html
 					li
 						a(href="#begin") Начало
 		section#begin(data-role="page" )
-			div(data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b")
+			div(data-position="fixed" data-role="header")
 				h2 Начало
 			div(data-role="content")
 				ul(data-role="listview")#seasons-list
 		section#season
-			div(data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b")
+			div(data-position="fixed" data-role="header")
+				a(href="#begin" data-icon="arrow-l" data-theme="b" data-rel="back" data-iconpos="notext")
 				h2
 			div(data-role="content")
 				ul(data-role="listview")#weeks-list
 		section#week
-			div(data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b")
+			div(data-position="fixed" data-role="header")
+				a(href="#season" data-icon="arrow-l" data-theme="b" data-rel="back" data-iconpos="notext")
 				h2
 			ul#days-list(data-role="listview")
 		section#day
-			div(data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b")
-				h2
+			div(data-position="fixed" data-role="header")
+				a(href="#week" data-icon="arrow-l" data-theme="b" data-rel="back" data-iconpos="notext")
+					= "Назад"
+				h2(style="margin-left: 15%;margin-right: 15%;")
+			div(data-role="content")

@@ -115,6 +115,3 @@ class Callendar{
 	}
 }
 
-console.log(new Callendar());
-
-// console.log(new Date('01/01/2017').getDay());

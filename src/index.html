@@ -3,6 +3,7 @@
   <head>
     <title>Onecheck</title>
     <link rel="stylesheet" href="css/libs.css">
+    <link rel="stylesheet" href="css/styles.min.css">
     <script src="js/libs.js"></script>
     <script src="js/scripts.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +21,7 @@
       </div>
     </div>
     <section id="begin" data-role="page">
-      <div data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b">
+      <div data-position="fixed" data-role="header">
         <h2>Начало</h2>
       </div>
       <div data-role="content">
@@ -28,7 +29,7 @@
       </div>
     </section>
     <section id="season">
-      <div data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b">
+      <div data-position="fixed" data-role="header"><a href="#begin" data-icon="arrow-l" data-theme="b" data-rel="back" data-iconpos="notext"></a>
         <h2></h2>
       </div>
       <div data-role="content">
@@ -36,15 +37,16 @@
       </div>
     </section>
     <section id="week">
-      <div data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b">
+      <div data-position="fixed" data-role="header"><a href="#season" data-icon="arrow-l" data-theme="b" data-rel="back" data-iconpos="notext"></a>
         <h2></h2>
       </div>
       <ul id="days-list" data-role="listview"></ul>
     </section>
     <section id="day">
-      <div data-position="fixed" data-role="header" data-add-back-btn="true" data-back-btn-text="Назад" data-back-btn-theme="b">
-        <h2></h2>
+      <div data-position="fixed" data-role="header"><a href="#week" data-icon="arrow-l" data-theme="b" data-rel="back" data-iconpos="notext">Назад</a>
+        <h2 style="margin-left: 15%;margin-right: 15%;"></h2>
       </div>
+      <div data-role="content"></div>
     </section>
   </body>
 </html>
