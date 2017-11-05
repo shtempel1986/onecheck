@@ -278,7 +278,14 @@ var createWeeksLink = function createWeeksLink(week) {
 //================================================================
 
 var createDaysLinks = function createDaysLinks(day, year) {
-	return $('<li>').append($('<a href="#day"> ' + day + ' </a>'));
+
+	if ($('html').jqmData('week') === 52 && parseInt(day) < 7) {
+		year++;
+	}
+
+	var _day = JSON.stringify({ day: day, year: year });
+
+	return $('<li>').append($('<a href="#day" data-change-date> ' + day + ' </a>').jqmData('day', _day));
 };
 
 //================================================================
@@ -296,6 +303,8 @@ $(function () {
 	HTML.on('click', '[data-change-date]', function () {
 		HTML.jqmData('seasonStart', $(this).jqmData('seasonStart'));
 		HTML.jqmData('week', $(this).jqmData('week'));
+		HTML.jqmData('day', $(this).jqmData('day'));
+		console.log(HTML.jqmData('day'));
 	});
 
 	//================================================================
@@ -435,7 +444,7 @@ $(function () {
 				for (var _iterator3 = days[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 					var day = _step3.value;
 
-					$(this).append(createDaysLinks(day));
+					$(this).append(createDaysLinks(day, year));
 				}
 			} catch (err) {
 				_didIteratorError3 = true;
@@ -459,7 +468,7 @@ $(function () {
 	//================================================================
 	$('#day').on('pagebeforeshow', function (e) {
 		var header = getUrlVars(e.currentTarget.baseURI).day;
-		console.log(header);
+
 		$(this).find('h2').html(header);
 	});
 });

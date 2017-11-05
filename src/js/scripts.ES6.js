@@ -149,7 +149,14 @@ let createWeeksLink = (week) => {
 //================================================================
 
 let createDaysLinks = (day,year)=>{
-	return $('<li>').append($(`<a href="#day"> ${day} </a>`))
+
+	if($('html').jqmData('week') === 52 && parseInt(day)<7){
+		year++;
+	}
+
+	let _day = JSON.stringify({day:day,year:year});
+
+	return $('<li>').append($(`<a href="#day" data-change-date> ${day} </a>`).jqmData('day', _day))
 };
 
 
@@ -169,6 +176,8 @@ $(() => {
 		HTML.on('click','[data-change-date]', function () {
 			HTML.jqmData('seasonStart',$(this).jqmData('seasonStart'));
 			HTML.jqmData('week',$(this).jqmData('week'));
+			HTML.jqmData('day',$(this).jqmData('day'));
+			console.log(HTML.jqmData('day'));
 		});
 
 	//================================================================
@@ -255,7 +264,7 @@ $(() => {
 		$(this).find('#days-list').html('').each(function () {
 			let days = getWeekDates(year,week);
 			for (let day of days){
-				$(this).append(createDaysLinks(day));
+				$(this).append(createDaysLinks(day,year));
 			}
 		}).listview('refresh');
 	});
@@ -265,7 +274,7 @@ $(() => {
 	//================================================================
 	$('#day').on('pagebeforeshow', function(e){
 		let header = getUrlVars(e.currentTarget.baseURI).day;
-		console.log(header);
+
 		$(this).find('h2').html(header);
 	});
 
