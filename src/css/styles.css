@@ -2,7 +2,14 @@ ol.onecheck-list {
   border-bottom: 1px solid #ddd; }
   ol.onecheck-list li.onecheck-list__item {
     border-bottom: none;
-    padding-bottom: 0; }
+    padding-bottom: 0;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex; }
+    ol.onecheck-list li.onecheck-list__item:not(:first-child) {
+      border-top: none;
+      padding-top: 0; }
     ol.onecheck-list li.onecheck-list__item::before {
       float: left;
       min-width: 0;
@@ -24,9 +31,14 @@ ol.onecheck-list {
       height: 17px;
       outline: none; }
   ol.onecheck-list .onecheck-text {
+    -webkit-box-flex: 1;
+    -webkit-flex-grow: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
     float: left;
     display: inline-block;
-    vertical-align: top; }
+    vertical-align: top;
+    margin-bottom: 0; }
     ol.onecheck-list .onecheck-text__textarea {
       margin: 0;
       height: 15px;
@@ -36,4 +48,8 @@ ol.onecheck-list {
       resize: none;
       vertical-align: middle;
       outline: none;
-      border: none; }
+      border: none;
+      min-height: 37px; }
+
+a.onecheck-current-week {
+  background-color: #fff !important; }
