@@ -3,6 +3,9 @@ ol.onecheck-list {
   ol.onecheck-list li.onecheck-list__item {
     border-bottom: none;
     padding-bottom: 0; }
+    ol.onecheck-list li.onecheck-list__item:not(:first-child) {
+      border-top: none;
+      padding-top: 0; }
     ol.onecheck-list li.onecheck-list__item::before {
       float: left;
       min-width: 0;
@@ -26,7 +29,8 @@ ol.onecheck-list {
   ol.onecheck-list .onecheck-text {
     float: left;
     display: inline-block;
-    vertical-align: top; }
+    vertical-align: top;
+    margin-bottom: 0; }
     ol.onecheck-list .onecheck-text__textarea {
       margin: 0;
       height: 15px;
@@ -36,4 +40,8 @@ ol.onecheck-list {
       resize: none;
       vertical-align: middle;
       outline: none;
-      border: none; }
+      border: none;
+      min-height: 37px; }
+
+a.onecheck-current-week {
+  background-color: #fff !important; }

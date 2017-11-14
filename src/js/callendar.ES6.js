@@ -46,6 +46,8 @@ class Callendar{
 
 		this.seasoneStarts =[];
 
+		this.week = this._date.getWeek();
+
 		for(let i = 0; i < 8; i++) {
 			this._initSeasonStarts(i);
 		}

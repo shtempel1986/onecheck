@@ -11,7 +11,9 @@ let gulp = require('gulp'),
 	imageminJpegRecompress = require('imagemin-jpeg-recompress'),
 	pug = require ('gulp-pug'),
 	concat = require('gulp-concat'),
-	cssnano = require('gulp-cssnano');
+	cssnano = require('gulp-cssnano'),
+  sourcemaps = require('gulp-sourcemaps'),
+	uglify = require('gulp-uglify');
 
 //==========================================================
 //= libs
@@ -43,18 +45,17 @@ gulp.task('pug',()=>{
 //= sass
 //==========================================================
 
-gulp.task('sass', function () {
-	return gulp.src('src/sass/**/*.sass')
+
+
+gulp.task('css-nano', function () {
+	return gulp.src('src/sass/styles.sass')
+		.pipe(sourcemaps.init())
 		.pipe(sass())
 		.pipe(autoprefixer(['last 15 version', '>1%', 'ie 8', 'ie 7'], {cascade: true}))
 		.pipe(gulp.dest('src/css'))
-});
-
-
-gulp.task('css-nano',['sass'], function () {
-	return gulp.src('src/css/styles.css')
 		.pipe(cssnano())
 		.pipe(rename({suffix:'.min'}))
+		.pipe(sourcemaps.write('maps'))
 		.pipe(gulp.dest('src/css'))
 		.pipe(browserSync.reload({stream: true}))
 });
@@ -83,6 +84,9 @@ gulp.task("babel", function () {
 		.pipe(babel())
 		.pipe(concat("scripts.js"))
 		.pipe(gulp.dest("src/js"))
+		.pipe(uglify())
+		.pipe(rename({suffix:'.min'}))
+		.pipe(gulp.dest("src/js"))
 		.pipe(browserSync.reload({stream: true}));
 });
 
@@ -92,7 +96,7 @@ gulp.task("babel", function () {
 
 gulp.task('watch', ['browser-sync', 'babel', 'libs', 'css-nano','pug'], function () {
 	gulp.watch('src/sass/**/*.sass', ['css-nano',browserSync.reload]);
-	gulp.watch(["src/js/*.js"], ['babel',browserSync.reload]);
+	gulp.watch(["src/js/callendar.ES6.js","src/js/input-tasks.ES6.js","src/js/scripts.ES6.js"], ['babel',browserSync.reload]);
 	gulp.watch('src/pug/**/*.pug', ['pug',browserSync.reload]);
 });
 
@@ -128,7 +132,7 @@ gulp.task('img', function () {
 //=  BUILD
 //===========================================================
 
-gulp.task('build', ['clean', 'img', 'sass', 'babel'], function () {
+gulp.task('build', ['clean', 'img', 'babel'], function () {
 	let buildCss = gulp.src([
 		'src/css/main.min.css',
 		'src/css/libs.min.css'

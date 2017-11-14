@@ -2,13 +2,6 @@
 //= ДАННЫЕ ИЗ url
 //================================================================
 
-function getUrlVars(url) {
-	let vars = {};
-	let parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-		vars[key] = value;
-	});
-	return vars;
-}
 
 //================================================================
 //= ЛОГИКА КАЛЕНДАРЯ
@@ -76,23 +69,6 @@ let getWeekDates = function (year, weeksNumber) {
 };
 
 
-let YEAR = new Date().getFullYear(),
-	springStart, summerStart, autumnStart, winterStart;
-
-for (let i = 1; i < 8; i++) {
-	if (new Date(`${YEAR}/3/${i}`).getDay() === 1) {
-		springStart = new Date(`${YEAR}/3/${i}`);
-	}
-	if (new Date(`${YEAR}/6/${i}`).getDay() === 1) {
-		summerStart = new Date(`${YEAR}/6/${i}`);
-	}
-	if (new Date(`${YEAR}/9/${i}`).getDay() === 1) {
-		autumnStart = new Date(`${YEAR}/9/${i}`);
-	}
-	if (new Date(`${YEAR}/12/${i}`).getDay() === 1) {
-		winterStart = new Date(`${YEAR}/12/${i}`);
-	}
-}
 
 // let autumnWeeks = [];
 //
@@ -242,13 +218,43 @@ $(() => {
 		}).listview({
 			splitIcon: 'none'
 		}).listview('refresh');
+
+		$(this).find('li a').each(function () {
+
+			let red = parseInt(Math.random()*(255));
+			let green = parseInt(Math.random()*(255 ));
+			let blue = parseInt(Math.random()*(255 ));
+
+
+			$(this).css({
+				'background-color': `rgb(${red},${green},${blue})`
+			});
+
+			if(red>210&&green>210&&blue>210){
+				$(this).css('color','#333');
+			}
+
+
+			let year  =  HTML.jqmData('seasonStart').getFullYear();
+
+			let week = $(this).jqmData('week');
+
+			week<10 ? year++ : year;
+
+			if(week===CALLENDAR.week && year===CALLENDAR.year ){
+				$(this).addClass('onecheck-current-week');
+			}
+
+		});
+
+
 	});
 
 	//================================================================
 	//= СОЗДАНИЕ СТРАНИЦЫ  НЕДЕЛИ
 	//================================================================
 
-	$('#week').on('pagebeforeshow', function(e){
+	$('#week').on('pagebeforeshow', function(){
 
 		let week = HTML.jqmData('week');
 
@@ -271,7 +277,7 @@ $(() => {
 	//================================================================
 	//= СОЗДАНИЕ СТРАНИЦЫ  ДНЯ
 	//================================================================
-	$('#day').on('pagebeforeshow', function(e){
+	$('#day').on('pagebeforeshow', function(){
 		let header = JSON.parse(HTML.jqmData('day'))['day'];
 
 		$(this).find('h2').html(header);

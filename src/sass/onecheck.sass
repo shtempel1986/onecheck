@@ -3,6 +3,10 @@ ol.onecheck-list
 	li.onecheck-list__item
 		border-bottom: none
 		padding-bottom: 0
+		display: flex
+		&:not(:first-child)
+			border-top: none
+			padding-top: 0
 		&::before
 			float: left
 			min-width: 0
@@ -24,9 +28,11 @@ ol.onecheck-list
 			height: 17px
 			outline: none
 	.onecheck-text
+		flex-grow: 1
 		float: left
 		display: inline-block
 		vertical-align: top
+		margin-bottom: 0
 		&__textarea
 			margin: 0
 			height: 15px
@@ -36,3 +42,14 @@ ol.onecheck-list
 			vertical-align: middle
 			outline: none
 			border: none
+			min-height: 37px
+
+a.onecheck-current-week
+	background-color: #fff!important
+	color: #333!important
+	font-weight: bold!important
+
+#weeks-list
+	a
+		color: #fff
+		font-weight: 300
