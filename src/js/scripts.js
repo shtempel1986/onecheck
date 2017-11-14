@@ -43,7 +43,7 @@
 			}
 		}
 
-		$list.append($('\n  <li class="onecheck-list__item">\n    <label class="onecheck-checkbox">\n      <input type="checkbox" class="onecheck-checkbox__input">\n      <span class="onecheck-checkbox__check"></span>\n    </label>\n    <label class="onecheck-text">\n\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\n\t\t\t</textarea>\n\t\t</label>\n  </li>').find('textarea').val('').textinput().end());
+		$list.append($('\n\t\t<li class="onecheck-list__item">\n\t\t\t<label class="onecheck-checkbox">\n\t\t\t\t<input type="checkbox" class="onecheck-checkbox__input">\n\t\t\t\t<span class="onecheck-checkbox__check"></span>\n\t\t\t</label>\n\t\t\t<label class="onecheck-text">\n\t\t\t\t<textarea class="onecheck-text__textarea" data-onecheck-text>\n\t\t\t\t\t\t\t\t\n\t\t\t\t</textarea>\n\t\t\t</label>\n\t\t</li>').find('textarea').val('').textinput().end());
 
 		this.find('[data-role="content"]').html('').append($list);
 
@@ -64,7 +64,11 @@
 		this.find('li').each(function (idx) {
 			var _this = this;
 
-			$(this).find('input, textarea').off('change').on('change', function () {
+			$(this).find('input').change(function () {
+				$(_this).find('textarea').trigger('onecheck.change', $(_this).find('textarea')[0]);
+			});
+
+			$(this).find('textarea').off('onecheck.change').on('onecheck.change', function (e, el) {
 
 				var data = JSON.parse(localStorage.getItem(key)) || {};
 
@@ -72,15 +76,48 @@
 
 				var task = {};
 
-				task.done = $(_this).find('[type="checkbox"]').is(':checked');
+				if ($(_this).find('textarea').val() !== "") {
 
-				task.text = $(_this).find('textarea').val();
+					task.done = $(_this).find('[type="checkbox"]').is(':checked');
 
-				tasks[idx] = task;
+					task.text = $(_this).find('textarea').val();
+
+					tasks[idx] = task;
+				}
 
 				data[JSON.parse(HTML.jqmData('day')).day] = tasks;
 
 				localStorage.setItem(key, JSON.stringify(data));
+			}).off('keydown').on('keydown', function (e) {
+
+				if (e.keyCode === 8) {
+					//УДАЛЕНИЕ ЗАДАЧИ БЕКСПЕЙСОМ
+
+					var data = JSON.parse(localStorage.getItem(key)) || {};
+
+					var tasks = data[JSON.parse(HTML.jqmData('day')).day] || [];
+
+					if ($(this).val() === '' && $(this).parents('li').prev().length) {
+
+						$(this).parents('li').prev().find('textarea').focus();
+
+						$(this).parents('li').remove();
+
+						tasks.splice(idx, 1);
+
+						data[JSON.parse(HTML.jqmData('day')).day] = tasks;
+
+						localStorage.setItem(key, JSON.stringify(data));
+					}
+					if ($(this).val() === '' && !$(this).parents('li').siblings().length) {
+
+						tasks = [];
+
+						data[JSON.parse(HTML.jqmData('day')).day] = tasks;
+
+						localStorage.setItem(key, JSON.stringify(data));
+					}
+				}
 			});
 		});
 
@@ -117,8 +154,10 @@
 					}
 				}
 
-				$(this).change();
+				$(this).trigger('onecheck.change', this);
 			}
+		}).on('change', '[data-onecheck-text]', function () {
+			$(this).trigger('onecheck.change', this);
 		});
 		//ДОБАВЛЕНИЕ НОВОГО ПОЛЯ END
 	});
@@ -134,6 +173,9 @@
 
 		$('#day').on('pagebeforeshow', function () {
 			$(this).createInputs().find('ol').observeChange();
+		}).on('pageshow', function () {
+			console.log(this);
+			$(this).find('textarea').focus();
 		});
 	});
 })(jQuery);
@@ -171,6 +213,8 @@ var Callendar = function () {
 		this.year = this._date.getFullYear();
 
 		this.seasoneStarts = [];
+
+		this.week = this._date.getWeek();
 
 		for (var i = 0; i < 8; i++) {
 			this._initSeasonStarts(i);
@@ -246,13 +290,6 @@ var Callendar = function () {
 //= ДАННЫЕ ИЗ url
 //================================================================
 
-function getUrlVars(url) {
-	var vars = {};
-	var parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-		vars[key] = value;
-	});
-	return vars;
-}
 
 //================================================================
 //= ЛОГИКА КАЛЕНДАРЯ
@@ -337,27 +374,6 @@ var getWeekDates = function getWeekDates(year, weeksNumber) {
 	}
 	return weekDates;
 };
-
-var YEAR = new Date().getFullYear(),
-    springStart = void 0,
-    summerStart = void 0,
-    autumnStart = void 0,
-    winterStart = void 0;
-
-for (var i = 1; i < 8; i++) {
-	if (new Date(YEAR + '/3/' + i).getDay() === 1) {
-		springStart = new Date(YEAR + '/3/' + i);
-	}
-	if (new Date(YEAR + '/6/' + i).getDay() === 1) {
-		summerStart = new Date(YEAR + '/6/' + i);
-	}
-	if (new Date(YEAR + '/9/' + i).getDay() === 1) {
-		autumnStart = new Date(YEAR + '/9/' + i);
-	}
-	if (new Date(YEAR + '/12/' + i).getDay() === 1) {
-		winterStart = new Date(YEAR + '/12/' + i);
-	}
-}
 
 // let autumnWeeks = [];
 //
@@ -529,9 +545,9 @@ $(function () {
 
 			try {
 				for (var _iterator2 = weeks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var _i = _step2.value;
+					var i = _step2.value;
 
-					$(this).append(createWeeksLink(_i));
+					$(this).append(createWeeksLink(i));
 				}
 			} catch (err) {
 				_didIteratorError2 = true;
@@ -550,13 +566,38 @@ $(function () {
 		}).listview({
 			splitIcon: 'none'
 		}).listview('refresh');
+
+		$(this).find('li a').each(function () {
+
+			var red = parseInt(Math.random() * 255);
+			var green = parseInt(Math.random() * 255);
+			var blue = parseInt(Math.random() * 255);
+
+			$(this).css({
+				'background-color': 'rgb(' + red + ',' + green + ',' + blue + ')'
+			});
+
+			if (red > 210 && green > 210 && blue > 210) {
+				$(this).css('color', '#333');
+			}
+
+			var year = HTML.jqmData('seasonStart').getFullYear();
+
+			var week = $(this).jqmData('week');
+
+			week < 10 ? year++ : year;
+
+			if (week === CALLENDAR.week && year === CALLENDAR.year) {
+				$(this).addClass('onecheck-current-week');
+			}
+		});
 	});
 
 	//================================================================
 	//= СОЗДАНИЕ СТРАНИЦЫ  НЕДЕЛИ
 	//================================================================
 
-	$('#week').on('pagebeforeshow', function (e) {
+	$('#week').on('pagebeforeshow', function () {
 
 		var week = HTML.jqmData('week');
 
@@ -600,7 +641,7 @@ $(function () {
 	//================================================================
 	//= СОЗДАНИЕ СТРАНИЦЫ  ДНЯ
 	//================================================================
-	$('#day').on('pagebeforeshow', function (e) {
+	$('#day').on('pagebeforeshow', function () {
 		var header = JSON.parse(HTML.jqmData('day'))['day'];
 
 		$(this).find('h2').html(header);

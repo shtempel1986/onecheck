@@ -12,7 +12,8 @@ let gulp = require('gulp'),
 	pug = require ('gulp-pug'),
 	concat = require('gulp-concat'),
 	cssnano = require('gulp-cssnano'),
-  sourcemaps = require('gulp-sourcemaps');
+  sourcemaps = require('gulp-sourcemaps'),
+	uglify = require('gulp-uglify');
 
 //==========================================================
 //= libs
@@ -83,6 +84,9 @@ gulp.task("babel", function () {
 		.pipe(babel())
 		.pipe(concat("scripts.js"))
 		.pipe(gulp.dest("src/js"))
+		.pipe(uglify())
+		.pipe(rename({suffix:'.min'}))
+		.pipe(gulp.dest("src/js"))
 		.pipe(browserSync.reload({stream: true}));
 });
 
@@ -92,7 +96,7 @@ gulp.task("babel", function () {
 
 gulp.task('watch', ['browser-sync', 'babel', 'libs', 'css-nano','pug'], function () {
 	gulp.watch('src/sass/**/*.sass', ['css-nano',browserSync.reload]);
-	gulp.watch(["src/js/*.js"], ['babel',browserSync.reload]);
+	gulp.watch(["src/js/callendar.ES6.js","src/js/input-tasks.ES6.js","src/js/scripts.ES6.js"], ['babel',browserSync.reload]);
 	gulp.watch('src/pug/**/*.pug', ['pug',browserSync.reload]);
 });
 
